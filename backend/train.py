@@ -1,4 +1,4 @@
-import tensorflow as tf
+import json
 import os
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -15,6 +15,7 @@ train_dir = os.path.join(BASE_DIR, "dataset", "train")
 valid_dir = os.path.join(BASE_DIR, "dataset", "valid")
 model_dir = os.path.join(BASE_DIR, "model")
 model_path = os.path.join(model_dir, "skin_disease_model.h5")
+class_names_path = os.path.join(model_dir, "class_names.json")
 
 if not os.path.isdir(train_dir) or not os.path.isdir(valid_dir):
     raise FileNotFoundError("dataset/train and dataset/valid folders are required")
@@ -82,4 +83,16 @@ model.fit(
 os.makedirs(model_dir, exist_ok=True)
 model.save(model_path)
 
+class_names = [
+    class_name
+    for class_name, class_index in sorted(
+        train_data.class_indices.items(),
+        key=lambda item: item[1]
+    )
+]
+
+with open(class_names_path, "w", encoding="utf-8") as file:
+    json.dump(class_names, file, indent=2)
+
 print("Model Saved Successfully")
+print(f"Classes: {class_names}")
